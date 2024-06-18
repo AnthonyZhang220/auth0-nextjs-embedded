@@ -16,11 +16,14 @@
     "client",
     "embedded"
   ],
-  "bugs": {},
-  "homepage": "",
+  "bugs": {
+    "email": "anthonyzhang1997@gmail.com",
+    "url": "https://github.com/AnthonyZhang220/auth0-nextjs-embedded/issues"
+  },
+  "homepage": "https://github.com/AnthonyZhang220/auth0-nextjs-embedded",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/AnthonyZhang220/auth0-nextjs-embedded"
   },
   "scripts": {
     "clean": "rimraf dist",
