@@ -35,9 +35,6 @@
     "prepare": "npm run build",
     "prepublishOnly": "npm run lint && npm test"
   },
-  "files": [
-    "dist"
-  ],
   "dependencies": {
     "@types/auth0-js": "^9.21.6",
     "react": "^18.3.1"
