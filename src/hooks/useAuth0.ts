@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import Auth0Service from "../service/Auth0Service";
 import type {
@@ -10,7 +8,6 @@ import type {
 	Auth0UserProfile,
 	LoginOptions,
 	DbSignUpOptions,
-	DbSignUpResults,
 	ChangePasswordOptions,
 	CheckSessionOptions,
 	ParseHashOptions,
@@ -33,24 +30,23 @@ function useAuth0(options: Auth0Config): Auth0Hook {
 	const signupAndAuthorize = async (signUpForm: DbSignUpOptions) => {
 		setIsLoading(true);
 		// Handle signup logic
-		auth.auth0?.signup(
-			signUpForm,
-			async (error: Auth0Error | null, result: DbSignUpResults) => {
-				if (error) {
-					setError(error);
-					return;
-				}
-
-				await login({
-					username: signUpForm.email,
-					password: signUpForm.password,
-				});
+		auth.auth0?.signup(signUpForm, async (error: Auth0Error | null) => {
+			if (error) {
+				setError(error);
+				return;
 			}
-		);
+
+			await login({
+				username: signUpForm.email,
+				password: signUpForm.password,
+			});
+		});
 		setIsLoading(false);
 	};
 
-	const loginWithSocialProvider = async (provider: Auth0SocialProvider) => {
+	const loginWithSocialProvider = async (
+		provider: Auth0SocialProvider | string
+	) => {
 		auth.auth0?.authorize({ connection: provider });
 	};
 
@@ -77,7 +73,7 @@ function useAuth0(options: Auth0Config): Auth0Hook {
 		setIsLoading(false);
 	};
 
-	const parseHash = async (hash: ParseHashOptions) => {
+	const parseHash = async (hash: ParseHashOptions | Record<string, never>) => {
 		setIsLoading(true);
 		// handle hash parsing logic
 		auth.auth0?.parseHash(
@@ -111,7 +107,9 @@ function useAuth0(options: Auth0Config): Auth0Hook {
 		setIsLoading(false);
 	};
 
-	const checkSession = async (checkSessionForm: CheckSessionOptions | {}) => {
+	const checkSession = async (
+		checkSessionForm: CheckSessionOptions | Record<string, never>
+	) => {
 		//handle checksession logic
 		auth.auth0?.checkSession(
 			checkSessionForm,
@@ -139,7 +137,7 @@ function useAuth0(options: Auth0Config): Auth0Hook {
 		);
 	};
 
-	const revalidate = async (checkSessionForm: CheckSessionOptions | {}) => {
+	const revalidate = async (checkSessionForm: CheckSessionOptions | object) => {
 		setIsLoading(true);
 		auth.auth0?.checkSession(
 			checkSessionForm,
@@ -189,7 +187,7 @@ function useAuth0(options: Auth0Config): Auth0Hook {
 	};
 	const initAuth0 = async () => {
 		const auth = Auth0Service.getInstance();
-		const Auth0Client = await auth.init(options);
+		await auth.init(options);
 		setAuth(auth);
 	};
 

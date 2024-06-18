@@ -1,9 +1,5 @@
-"use client";
-
 import type { Auth0UserProfile, WebAuth } from "auth0-js";
 import { Auth0Config } from "../types";
-
-const connection: string = "Username-Password-Authentication";
 
 export type Auth0SocialProvider = "google-oauth2" | "linkedin";
 export type Auth0ServiceType = {

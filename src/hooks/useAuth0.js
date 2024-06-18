@@ -1,5 +1,4 @@
 "use strict";
-"use client";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -25,7 +24,7 @@ function useAuth0(options) {
         var _a;
         setIsLoading(true);
         // Handle signup logic
-        (_a = auth.auth0) === null || _a === void 0 ? void 0 : _a.signup(signUpForm, (error, result) => __awaiter(this, void 0, void 0, function* () {
+        (_a = auth.auth0) === null || _a === void 0 ? void 0 : _a.signup(signUpForm, (error) => __awaiter(this, void 0, void 0, function* () {
             if (error) {
                 setError(error);
                 return;
@@ -145,7 +144,7 @@ function useAuth0(options) {
     });
     const initAuth0 = () => __awaiter(this, void 0, void 0, function* () {
         const auth = Auth0Service_1.default.getInstance();
-        const Auth0Client = yield auth.init(options);
+        yield auth.init(options);
         setAuth(auth);
     });
     (0, react_1.useEffect)(() => {
