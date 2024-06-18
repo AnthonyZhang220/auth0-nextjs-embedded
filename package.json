@@ -1,0 +1,55 @@
+{
+  "name": "auth0-nextjs-embedded",
+  "version": "1.0.0",
+  "description": "A Next.js/React custom hook for Auth0 embedded login.",
+  "main": "index.js",
+  "author": "Anthony Zhang",
+  "license": "MIT",
+  "keywords": [
+    "auth0",
+    "auth",
+    "nextjs",
+    "browser",
+    "authentication",
+    "react",
+    "jwt",
+    "client",
+    "embedded"
+  ],
+  "bugs": {},
+  "homepage": "",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "tsc",
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run lint && npm test"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@types/auth0-js": "^9.21.6",
+    "react": "^18.3.1"
+  },
+  "peerDependencies": {
+    "auth0-js": "^9.0.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.24.7",
+    "@babel/core": "^7.24.7",
+    "@babel/preset-env": "^7.24.7",
+    "@babel/preset-react": "^7.24.7",
+    "@babel/preset-typescript": "^7.24.7",
+    "@types/react": "^18.3.3",
+    "jest": "^29.7.0",
+    "typescript": "^5.4.5"
+  }
+}
