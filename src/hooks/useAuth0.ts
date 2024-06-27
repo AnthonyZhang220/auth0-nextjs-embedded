@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
 import Auth0Service from "../service/Auth0Service";
 import type {
 	Auth0Error,
@@ -20,26 +22,45 @@ import {
 	Auth0SocialProvider,
 } from "../types";
 
-function useAuth0(options: Auth0Config): Auth0Hook {
-	const [auth, setAuth] = useState<Auth0Service>(Auth0Service.getInstance());
+const useAuth0 = (options: Auth0Config): Auth0Hook => {
+	const [auth, setAuth] = useState<Auth0Service | null>(null);
 	const [user, setUser] = useState<Auth0UserProfile | null>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 	const [error, setError] = useState<Auth0Error | null>(null);
 
+	const initAuth0 = useCallback(async () => {
+		if (typeof window !== "undefined") {
+			const authInstance = Auth0Service.getInstance();
+			await authInstance.init(options);
+			setAuth(authInstance);
+			console.log("Auth0 Service Initialized on Client!");
+		}
+	}, [options]);
+
 	const signupAndAuthorize = async (signUpForm: DbSignUpOptions) => {
 		setIsLoading(true);
+
+		auth?.auth0?.signupAndAuthorize(
+			signUpForm,
+			async (error: Auth0Error | null) => {
+				if (error) {
+					setError(error);
+					return;
+				}
+			}
+		);
+		setIsLoading(false);
+	};
+
+	const signup = async (signUpForm: DbSignUpOptions) => {
+		setIsLoading(true);
 		// Handle signup logic
-		auth.auth0?.signup(signUpForm, async (error: Auth0Error | null) => {
+		auth?.auth0?.signup(signUpForm, async (error: Auth0Error | null) => {
 			if (error) {
 				setError(error);
 				return;
 			}
-
-			await login({
-				username: signUpForm.email,
-				password: signUpForm.password,
-			});
 		});
 		setIsLoading(false);
 	};
@@ -47,13 +68,13 @@ function useAuth0(options: Auth0Config): Auth0Hook {
 	const loginWithSocialProvider = async (
 		provider: Auth0SocialProvider | string
 	) => {
-		auth.auth0?.authorize({ connection: provider });
+		auth?.auth0?.authorize({ connection: provider });
 	};
 
 	const login = async (loginForm: LoginOptions) => {
 		setIsLoading(true);
 		// Handle login logic
-		auth.auth0?.login(
+		auth?.auth0?.login(
 			loginForm,
 			async (error: Auth0Error | null, user: Auth0UserProfile) => {
 				if (error) {
@@ -69,15 +90,17 @@ function useAuth0(options: Auth0Config): Auth0Hook {
 	const logout = async (logoutOptions: LogoutOptions) => {
 		setIsLoading(true);
 		setIsAuthenticated(false);
-		auth.auth0?.logout(logoutOptions);
+		auth?.auth0?.logout(logoutOptions);
 		setIsLoading(false);
 	};
 
-	const parseHash = async (hash: ParseHashOptions | Record<string, never>) => {
+	const parseHash = async (
+		hashOptions: ParseHashOptions | Record<string, never>
+	) => {
 		setIsLoading(true);
 		// handle hash parsing logic
-		auth.auth0?.parseHash(
-			hash,
+		auth?.auth0?.parseHash(
+			hashOptions,
 			(
 				error: Auth0ParseHashError | null,
 				authResult: Auth0DecodedHash | null
@@ -91,7 +114,7 @@ function useAuth0(options: Auth0Config): Auth0Hook {
 					const { accessToken } = authResult;
 
 					if (accessToken) {
-						auth.auth0?.client.userInfo(
+						auth?.auth0?.client.userInfo(
 							accessToken,
 							async (error: Auth0Error | null, user: Auth0UserProfile) => {
 								if (error) {
@@ -107,12 +130,11 @@ function useAuth0(options: Auth0Config): Auth0Hook {
 		setIsLoading(false);
 	};
 
-	const checkSession = async (
-		checkSessionForm: CheckSessionOptions | Record<string, never>
-	) => {
+	const checkSession = async (checkSessionOptions: CheckSessionOptions) => {
+		setIsLoading(true);
 		//handle checksession logic
-		auth.auth0?.checkSession(
-			checkSessionForm,
+		auth?.auth0?.checkSession(
+			checkSessionOptions,
 			async (error: Auth0Error | null, authResult: Auth0Result) => {
 				if (error) {
 					setError(error);
@@ -121,7 +143,7 @@ function useAuth0(options: Auth0Config): Auth0Hook {
 				if (authResult) {
 					const { accessToken } = authResult;
 					if (accessToken) {
-						auth.auth0?.client.userInfo(
+						auth?.auth0?.client.userInfo(
 							accessToken,
 							async (error: Auth0Error | null, user: Auth0User) => {
 								if (error) {
@@ -135,46 +157,17 @@ function useAuth0(options: Auth0Config): Auth0Hook {
 				}
 			}
 		);
-	};
-
-	const revalidate = async (checkSessionForm: CheckSessionOptions | object) => {
-		setIsLoading(true);
-		auth.auth0?.checkSession(
-			checkSessionForm,
-			async (error: Auth0Error | null, authResult) => {
-				if (error) {
-					setError(error);
-				}
-
-				if (authResult) {
-					const { accessToken } = authResult;
-
-					if (accessToken) {
-						auth.auth0?.client.userInfo(
-							accessToken,
-							(error: Auth0Error | null, user: Auth0UserProfile) => {
-								if (error) {
-									setError(error);
-								}
-								setUser(user);
-								setIsAuthenticated(true);
-							}
-						);
-					}
-				}
-
-				setIsLoading(false);
-			}
-		);
+		setIsLoading(false);
 	};
 
 	const passwordReset = async (resetForm: ChangePasswordOptions) => {
 		setIsLoading(true);
-		auth.auth0?.changePassword(
+		auth?.auth0?.changePassword(
 			resetForm,
 			async (error: Auth0Error | null, res: string) => {
 				if (error) {
 					setError(error);
+					return;
 				}
 
 				if (res) {
@@ -185,51 +178,46 @@ function useAuth0(options: Auth0Config): Auth0Hook {
 			}
 		);
 	};
-	const initAuth0 = async () => {
-		const auth = Auth0Service.getInstance();
-		await auth.init(options);
-		setAuth(auth);
+
+	const handleAuthentication = async (
+		checkSessionOptions: CheckSessionOptions
+	) => {
+		setIsLoading(true);
+		auth?.auth0?.checkSession(
+			checkSessionOptions,
+			(error: Auth0Error | null, authRes: Auth0Result | null) => {
+				if (error) {
+					setError(error);
+					setIsLoading(false);
+				}
+
+				if (authRes && authRes.accessToken) {
+					auth?.auth0?.client.userInfo(
+						authRes.accessToken,
+						(error: Auth0Error | null, profile: Auth0User) => {
+							if (error) {
+								setError(error);
+							}
+
+							setUser(profile);
+							setIsAuthenticated(true);
+							setIsLoading(false);
+						}
+					);
+				}
+			}
+		);
 	};
 
 	useEffect(() => {
 		initAuth0();
-
-		const handleAuthentication = () => {
-			auth.auth0?.parseHash(
-				(error: Auth0Error | null, authRes: Auth0Result | null) => {
-					if (authRes && authRes.accessToken && authRes.idToken) {
-						auth?.auth0?.client.userInfo(
-							authRes.accessToken,
-							(error: Auth0Error | null, profile: Auth0User) => {
-								if (error) {
-									setError(error);
-								} else {
-									setUser(profile);
-									setIsAuthenticated(true);
-								}
-								setIsLoading(false);
-							}
-						);
-					} else if (error) {
-						setError(error);
-						setIsLoading(false);
-					}
-				}
-			);
-		};
-
-		if (window.location.hash && auth) {
-			handleAuthentication();
-		}
-
-		return () => {
-			handleAuthentication();
-		};
-	}, [typeof window]);
+	}, [initAuth0]);
 
 	return {
+		auth,
 		user,
 		signupAndAuthorize,
+		signup,
 		login,
 		logout,
 		passwordReset,
@@ -238,9 +226,9 @@ function useAuth0(options: Auth0Config): Auth0Hook {
 		error,
 		loginWithSocialProvider,
 		parseHash,
-		revalidate,
 		checkSession,
+		handleAuthentication,
 	};
-}
+};
 
 export default useAuth0;

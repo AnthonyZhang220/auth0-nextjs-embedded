@@ -1,16 +1,10 @@
-import type { Auth0UserProfile, WebAuth } from "auth0-js";
 import { Auth0Config } from "../types";
-
-export type Auth0SocialProvider = "google-oauth2" | "linkedin";
-export type Auth0ServiceType = {
-	user: Auth0UserProfile;
-};
 
 class Auth0Service {
 	private static instance: Auth0Service | null = null;
 
 	private isBrowser = typeof window !== "undefined";
-	public auth0?: WebAuth;
+	public auth0?: import("auth0-js").WebAuth;
 
 	private constructor() {}
 
