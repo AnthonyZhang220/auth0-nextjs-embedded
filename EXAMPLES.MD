@@ -4,7 +4,7 @@
 ```ts
 "use client";
 
-const { user, login, signupAndAuthenticate, logout } = useAuth0({
+const { user, login, signupAndAuthenticate, logout, handleAuthentication } = useAuth0({
     domain: `{Your Domain from Auth0}`, 
     clientID: `{Your Domain from Auth0}`
     ...   
@@ -30,6 +30,11 @@ const { user, login, signupAndAuthenticate, logout } = useAuth0({
 //user
 function UserProfile(){
     const { user } = useAuth0({...config})
+
+    useEffect(()=>{
+        handleAuthentication({})
+    }, [])
+    
     return (
         user ? <h1>Your are logged in as {user.name}</h1> : <NotAuthorized/>;
     )

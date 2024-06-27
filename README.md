@@ -17,7 +17,7 @@ This is a custom hook library where you can authenticate your user on the client
 ## Documentation
 - [Options](#options) Basic configurations for Auth0
 - [Types](#types) Types of each functions, configs and options.
-- [Examples](https://github.com/auth0/auth0.js/blob/master/EXAMPLES.md) - code samples for common auth0-js authentication scenario's.
+- [Examples](https://github.com/AnthonyZhang220/auth0-nextjs-embedded/blob/main/EXAMPLES.MD) - code samples for basic hook usage.
 
 ## Getting started
 
