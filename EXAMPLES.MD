@@ -29,12 +29,12 @@ const { user, login, signupAndAuthenticate, logout, handleAuthentication } = use
 
 //user
 function UserProfile(){
-    const { user } = useAuth0({...config})
+    const { user, handleAuthentication } = useAuth0({...config})
 
     useEffect(()=>{
         handleAuthentication({})
     }, [])
-    
+
     return (
         user ? <h1>Your are logged in as {user.name}</h1> : <NotAuthorized/>;
     )
